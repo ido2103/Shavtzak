@@ -134,17 +134,21 @@ def doSiur(dict):
     temp_list.append(soldier1div4)
     temp_list.append(soldier2div4)
     list_of_soldiers.append(temp_list)
-    for i in list_of_soldiers:
-        if i[0] == str or i[1] == "":
-            list_of_soldiers.remove(i)
+    for k in range(4):
+        for i in list_of_soldiers:
+            for j in i:
+                if j == str:
+                    list_of_soldiers.remove(i)
+                    break
     r = random.randint(0, len(list_of_soldiers)-1)
+
     for i in list_of_soldiers[r]:
         for j in dict:
             if i == j:
                 dict[j]["Siur"] += 1
                 dict[j]["RestingHours"] = 16
 
-    return list_of_soldiers[r]
+    return list_of_soldiers[r], dict
 
 
 def doMitbah(dict):
@@ -210,7 +214,7 @@ def doSG(dict):
     num = highest(dict, "S.G")
     soldier = ''
     for i in dict:
-        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["S.G"] < num):
+        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["S.G"] <= num):
             soldier = i
             num = dict[i]["S.G"]
     for i in dict:
@@ -219,13 +223,28 @@ def doSG(dict):
             dict[i]["S.G"] += 1
     return soldier, dict
 
+
+def doTapuz(dict):
+    num = highest(dict, "Tapuz")
+    soldier = ''
+    for i in dict:
+        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["Tapuz"] <= num):
+            soldier = i
+            num = dict[i]["Tapuz"]
+    for i in dict:
+        if i == soldier:
+            dict[i]["RestingHours"] = 8
+            dict[i]["Tapuz"] += 1
+    return soldier, dict
+
+
 def rewriteExcel(dict):
     for i in dict:
         rb = open_workbook("shavtzak.xls")
         wb = copy(rb)
         excel = wb.get_sheet(0)
         excel.write(dict[i]["Row"], 1, dict[i]["S.G"])
-        excel.write(int(dict[i]["Row"]), 2, dict[i]["Nishkia"])
+        excel.write(int(dict[i]["Row"]), 2, dict[i]["Tapuz"])
         excel.write(int(dict[i]["Row"]), 3, dict[i]["Siur"])
         excel.write(int(dict[i]["Row"]), 4, dict[i]["Mitbach"])
         excel.write(int(dict[i]["Row"]), 5, dict[i]["Hamal"])
@@ -234,24 +253,99 @@ def rewriteExcel(dict):
         wb.save("shavtzak.xls")
 
 
+def cycle2(dict): # New
+    #Mitbah
+    list_of_soldiers = []
+    mitbah, dict = doMitbah(dict)
+    list_of_soldiers.append(mitbah)
+    hamal, dict = doHamal(dict)
+    list_of_soldiers.append(hamal)
+    siur, dict = doSiur(dict)
+    list_of_soldiers.append(siur)
+    sg, dict = doSG(dict)
+    list_of_soldiers.append(sg)
+    tapuz, dict = doTapuz(dict)
+    list_of_soldiers.append(tapuz)
+    for i in dict:
+        if dict[i]["RestingHours"] > 0:
+            dict[i]["RestingHours"] -= 4
+    sg, dict = doSG(dict)
+    list_of_soldiers.append(sg)
+    tapuz, dict = doTapuz(dict)
+    list_of_soldiers.append(tapuz)
+    for i in dict:
+        if dict[i]["RestingHours"] > 0:
+            dict[i]["RestingHours"] -= 4
+    hamal, dict = doHamal(dict)
+    list_of_soldiers.append(hamal)
+    siur, dict = doSiur(dict)
+    list_of_soldiers.append(siur)
+    sg, dict = doSG(dict)
+    list_of_soldiers.append(sg)
+    tapuz, dict = doTapuz(dict)
+    list_of_soldiers.append(tapuz)
+    for i in dict:
+        if dict[i]["RestingHours"] > 0:
+            dict[i]["RestingHours"] -= 4
+    sg, dict = doSG(dict)
+    list_of_soldiers.append(sg)
+    tapuz, dict = doTapuz(dict)
+    list_of_soldiers.append(tapuz)
+    for i in dict:
+        if dict[i]["RestingHours"] > 0:
+            dict[i]["RestingHours"] -= 4
+    hamal, dict = doHamal(dict)
+    list_of_soldiers.append(hamal)
+    siur, dict = doSiur(dict)
+    list_of_soldiers.append(siur)
+    sg, dict = doSG(dict)
+    list_of_soldiers.append(sg)
+    tapuz, dict = doTapuz(dict)
+    list_of_soldiers.append(tapuz)
+    for i in dict:
+        if dict[i]["RestingHours"] > 0:
+            dict[i]["RestingHours"] -= 4
+    sg, dict = doSG(dict)
+    list_of_soldiers.append(sg)
+    tapuz, dict = doTapuz(dict)
+    list_of_soldiers.append(tapuz)
+    for i in dict:
+        if dict[i]["RestingHours"] > 0:
+            dict[i]["RestingHours"] -= 4
+        if i == sg or i == tapuz:
+            dict[i]["RestingHours"] = 8
+    rewriteExcel(dict)
+    return list_of_soldiers
+
+
 def cycle(dict):
     # Setting up the excel sheet. To write in it use excel.write(row, column, "data").
     rb = open_workbook("shavtzak.xls")
-    wb = copy(rb)
     # Mitbah
     mitbah, dict = doMitbah(dict)
     print("Mitbah: ", ', '.join(mitbah))
     # Hamal
-    hamal, dict = doHamal(dict)
-    print("Hamal: ", hamal)
+    hamalList = []
+    for i in range(3):
+        hamal, dict = doHamal(dict)
+        hamalList.append(hamal)
+    print("Hamal: ", ", ".join(hamalList))
     # Siur
-    siur = doSiur(dict)
-    print("Siur: ", ', '.join(siur))
-    # Nishkia
-    # SG
-    sg, dict = doSG(dict)
-    print("S.G: ", sg)
-    for i in dict:
-            dict[i]["RestingHours"] = 0
+    siurList = []
+    for i in range(2):
+        siur = doSiur(dict)
+        siurList.append(", ".join(siur))
+    print("Siur: ", ", ".join(siurList))
+    # SG & tapuz
+    sgList = []
+    tapuzList = []
+    for i in range(6):
+        sg, dict = doSG(dict)
+        tapuz, dict = doTapuz(dict)
+        sgList.append(sg)
+        tapuzList.append(tapuz)
+    print("S.G: ", ", ".join(sgList))
+    print("Tapuz: ", ", ".join(tapuzList))
     rewriteExcel(dict)
+    # TODO: RESTING HOURS & UI AND WE'RE FUCKIN DONE WITH BACKEND LES GO(add option for 4/8 & weekend option)
     return dict
