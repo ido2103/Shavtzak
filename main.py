@@ -1,11 +1,10 @@
-from audioop import avg
 import xlrd
-from classes import *
-from random import uniform
 from funcs import *
+import time
 
 
 def main():
+    time1 = time.process_time()
     wbr = xlrd.open_workbook("D:\ShavTzak\shavtzak.xls")
     sheets = wbr.sheets()[0]
     list_of_soldiers = []
@@ -19,7 +18,8 @@ def main():
         list_of_soldiers.append(soldier_value)
 
     dict = listToDict(list_of_soldiers)
-    cycle(dict, 1)
+    cycle(dict)
+    print("Time: ", time.process_time() - time1)
     """
     The code works in 6 cycles, updating the rest hours & current mission of each soldier on duty. This will be done by calling in a specific function several times.
     The aim is to make sure the soldiers don't do more than 4/8 or 8/8. Doing 4/8 reduces 3 resting points (1 for the 4 hours of guarding and 2 for the 8 hours of rest),
@@ -29,4 +29,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except PermissionError:
+        print("The excel file is open. Close it and restart the program.")
