@@ -390,7 +390,6 @@ def cycle(dict, siurimNum, hamalNum):
     excel_file = makeExcel(list_of_soldiers)
     print("Succsfully made a new shavtzak.")
     os.startfile(excel_file+".xls")
-
     return list_of_soldiers
 
 
