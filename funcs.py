@@ -326,7 +326,7 @@ def rewriteExcel(dict):
 
 
 def cycle(dict, siurimNum, hamalNum):
-    # TODO: MAKE SIURIMNUM AND HAMALNUM MEAN SOMETHING (REWRITE THE EXCEL.WRITE ALGORITHM)
+    # TODO: MAKE SIURIMNUM AND HAMALNUM MEAN SOMETHING (REWRITE THE EXCEL.WRITE ALGORITHM), FIX HIGHLIGHT ON EXCEL
     # Mitbah
     list_of_soldiers = []
     dict2 = {}
