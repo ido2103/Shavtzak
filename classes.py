@@ -25,17 +25,17 @@ class MyWindow(QMainWindow):
         self.siurimLabel.adjustSize()
         self.siurimLabel.move(39, 5)
 
-        self.hamalEdit = QtWidgets.QLineEdit(self)
-        self.hamalEdit.setText("3")
-        self.hamalEdit.move(5, 85)
+        self.SiurimNumEdit = QtWidgets.QLineEdit(self)
+        self.SiurimNumEdit.setText("1")
+        self.SiurimNumEdit.move(5, 85)
 
-        self.hamalLabel = QtWidgets.QLabel(self)
-        self.hamalLabel.setText("מספר חמל")
-        self.hamalLabel.adjustSize()
-        self.hamalLabel.move(49, 65)
+        self.SiurimNumLabel = QtWidgets.QLabel(self)
+        self.SiurimNumLabel.setText("מספר אנשים בסיור")
+        self.SiurimNumLabel.adjustSize()
+        self.SiurimNumLabel.move(8, 65)
 
         self.b1 = QtWidgets.QPushButton(self)
         self.b1.setText("צור שבצק")
         self.b1.move(5, 465)
-        self.b1.clicked.connect(lambda: cycle(dict, int(self.siurimEdit.text()), int(self.hamalEdit.text())))
+        self.b1.clicked.connect(lambda: cycle2(dict, int(self.siurimEdit.text()), int(self.SiurimNumEdit.text())))
 
