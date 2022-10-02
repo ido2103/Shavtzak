@@ -5,6 +5,7 @@ from xlrd import open_workbook
 from xlutils.copy import copy
 from time import gmtime, strftime
 import os
+import time
 
 
 
@@ -55,7 +56,7 @@ def listToDict(soldiers):
         dict.update({soldiers[i][0]: temp})
     return dict
 
-
+"""
 def makeExcel(list):
     today = str(strftime("%Y-%m-%d", gmtime()))
     book = xlwt.Workbook()
@@ -123,9 +124,10 @@ def makeExcel(list):
     sheet.col(5).width = 8000
     book.save(wb_name + ".xls")
     return wb_name
+"""
 
 
-def doSiur(dict):
+def doSiur(dict, siurimNum, siurimNumEdit):
     rb = open_workbook("shavtzak.xls")
     div1 = {}
     div2 = {}
@@ -134,13 +136,13 @@ def doSiur(dict):
     for i in dict:
         value = rb.sheet_by_index(0).cell(int(dict[i]["Row"]), 3).value
         j = {i: value}
-        if dict[i]["Division"] == 1 and (dict[i]["RestingHours"] == 0 and (dict[i]["MitbahCooldown"] < 2)):
+        if dict[i]["Division"] == 1 and (dict[i]["RestingHours"] <= 0 and (dict[i]["MitbahCooldown"] < 2)):
             div1.update(j)
-        elif dict[i]["Division"] == 2 and (dict[i]["RestingHours"] == 0 and (dict[i]["MitbahCooldown"] < 2)):
+        elif dict[i]["Division"] == 2 and (dict[i]["RestingHours"] <= 0 and (dict[i]["MitbahCooldown"] < 2)):
             div2.update(j)
-        elif dict[i]["Division"] == 3 and (dict[i]["RestingHours"] == 0 and (dict[i]["MitbahCooldown"] < 2)):
+        elif dict[i]["Division"] == 3 and (dict[i]["RestingHours"] <= 0 and (dict[i]["MitbahCooldown"] < 2)):
             div3.update(j)
-        elif dict[i]["Division"] == 4 and (dict[i]["RestingHours"] == 0 and (dict[i]["MitbahCooldown"] < 2)):
+        elif dict[i]["Division"] == 4 and (dict[i]["RestingHours"] <= 0 and (dict[i]["MitbahCooldown"] < 2)):
             div4.update(j)
     lowest1div1, lowest2div1 = 999, 999
     soldier1div1, soldier2div1 = str, str
@@ -207,6 +209,9 @@ def doSiur(dict):
     temp_list.append(soldier1div4)
     temp_list.append(soldier2div4)
     list_of_soldiers.append(temp_list)
+    if siurimNumEdit == 1:
+        for i in list_of_soldiers:
+            i.remove(i[1])
     for k in range(4):
         for i in list_of_soldiers:
             for j in i:
@@ -219,11 +224,12 @@ def doSiur(dict):
         for j in dict:
             if i == j:
                 dict[j]["Siur"] += 1
-                dict[j]["RestingHours"] = 16
+                dict[j]["RestingHours"] = siurimNum * 8 + 12
+    print(list_of_soldiers[r])
     return list_of_soldiers[r], dict
 
 
-def doMitbah(dict):
+def doMitbah(dict, siurimNum):
     rb = open_workbook("shavtzak.xls")
     highest1 = highest(dict, "Mitbach")
     highest2 = highest1
@@ -250,13 +256,13 @@ def doMitbah(dict):
             value += 1
             dict[i]["Mitbah"] = value  # updating the mitbach count
             dict[i]["MitbahCooldown"] = 3  # updating the mitbachcd
-            dict[i]["RestingHours"] = 24
+            dict[i]["RestingHours"] = (siurimNum * 8) + 24
         elif i == soldier2:
             value = rb.sheet_by_index(0).cell(int(dict[i]["Row"]), 4).value
             value += 1
             dict[i]["Mitbah"] = value
             dict[i]["MitbahCooldown"] = 3
-            dict[i]["RestingHours"] = 24
+            dict[i]["RestingHours"] = (siurimNum * 8) + 24
     for i in soldiers:
         for j in dict:
             if i == j:
@@ -268,16 +274,16 @@ def doMitbah(dict):
     return soldiers, dict
 
 
-def doHamal(dict):
+def doHamal(dict, hamalNum, siurimNum):
     num = highest(dict, "Hamal")
     soldier = ''
     for i in dict:
-        if (dict[i]["RestingHours"] == 0) and (dict[i]["IsHamal"] == 1) and (dict[i]["Hamal"] <= num) and (dict[i]["MitbahCooldown"] < 2):
+        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsHamal"] == 1) and (dict[i]["Hamal"] <= num) and (dict[i]["MitbahCooldown"] < 2):
             num = dict[i]["Hamal"]
             soldier = i
     for i in dict:
         if i == soldier:
-            dict[i]["RestingHours"] = 16
+            dict[i]["RestingHours"] = (hamalNum * 8) + (siurimNum * 8) + 16
             dict[i]["Hamal"] += 1
     return soldier, dict
 
@@ -286,7 +292,7 @@ def doSG(dict):
     num = highest(dict, "S.G")
     soldier = ''
     for i in dict:
-        if (dict[i]["RestingHours"] == 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["S.G"] <= num) and (dict[i]["MitbahCooldown"] < 2):
+        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["S.G"] <= num) and (dict[i]["MitbahCooldown"] < 2):
             soldier = i
             num = dict[i]["S.G"]
     for i in dict:
@@ -300,7 +306,7 @@ def doTapuz(dict):
     num = highest(dict, "Tapuz")
     soldier = ''
     for i in dict:
-        if (dict[i]["RestingHours"] == 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["Tapuz"] <= num) and (dict[i]["MitbahCooldown"] < 2):
+        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["Tapuz"] <= num) and (dict[i]["MitbahCooldown"] < 2):
             soldier = i
             num = dict[i]["Tapuz"]
     for i in dict:
@@ -325,16 +331,162 @@ def rewriteExcel(dict):
         wb.save("shavtzak.xls")
 
 
+def makeExcel2(soldiers, siurim, hamal):
+    today = str(strftime("%Y-%m-%d", gmtime()))
+    book = xlwt.Workbook()
+    sheet = book.add_sheet("Shavtzak")
+    wb_name = "Shavtzak {0}".format(today)
+    list_of_doubled = []
+    all_people = []
+    for i in soldiers:
+        if type(i) == str:
+            all_people.append(i)
+        elif type(i) == list and type(i[0]) != list:
+            for j in i:
+                all_people.append(j)
+        if type(i[0]) == list:
+            for j in i:
+                for k in j:
+                    all_people.append(k)
+    for i in range(len(all_people)):
+        for j in range(1 + i, len(all_people)):
+            if all_people[i] == all_people[j]:
+                list_of_doubled.append(all_people[i])
+    plain = xlwt.easyfont('')
+    bold = xlwt.easyfont('bold true')
+    for i in range(len(soldiers)):
+        if type(soldiers[i]) == str:
+            soldiers[i] = (soldiers[i], plain) if soldiers[i] not in list_of_doubled else (soldiers[i], bold)
+        elif type(soldiers[i]) == list and type(soldiers[i][0]) != list:
+            for j in range(len(soldiers[i])):
+                soldiers[i][j] = (soldiers[i][j], plain) if soldiers[i][j] not in list_of_doubled else (soldiers[i][j], bold)
+        if type(soldiers[i][0]) == list:
+            for j in range(len(soldiers[i])):
+                for k in range(len(soldiers[i][j])):
+                    soldiers[i][j][k] = (soldiers[i][j][k], plain) if soldiers[i][j][k] not in list_of_doubled else (
+                    soldiers[i][j][k], bold)
+
+    #sheet.write_rich_text(0, 0, (seg1, seg2))
+    sheet.write(0, 0, "Names")
+    sheet.write(0, 1, "S.G")
+    sheet.write(0, 2, "Tapuz")
+    sheet.write(0, 3, "Siur")
+    sheet.write(0, 4, "Hamal")
+    sheet.write(0, 5, "Mitbah")
+    sheet.write(1, 0, "6:00-10:00")
+    sheet.write(2, 0, "10:00-14:00")
+    sheet.write(3, 0, "14:00-18:00")
+    sheet.write(4, 0, "18:00-22:00")
+    sheet.write(5, 0, "22:00-2:00")
+    sheet.write(6, 0, "2:00-6:00")
+    sheet.write_rich_text(1, 5, (soldiers[0], ", ", soldiers[1]))
+    sheet.write_rich_text(1, 4, (soldiers[2][0], " "))
+    sheet.write_rich_text(2, 4, (soldiers[2][0], " "))
+    sheet.write_rich_text(3, 4, (soldiers[2][1], " "))
+    sheet.write_rich_text(4, 4, (soldiers[2][1], " "))
+    sheet.write_rich_text(5, 4, (soldiers[2][2], " "))
+    sheet.write_rich_text(6, 4, (soldiers[2][2], " "))
+    if (len(soldiers[3][0])) == 2:
+        if (len(soldiers[3])) == 3:
+            sheet.write_rich_text(1, 3, (soldiers[3][0][0], ", ", soldiers[3][0][1]))
+            sheet.write_rich_text(2, 3, (soldiers[3][0][0], ", ", soldiers[3][0][1]))
+            sheet.write_rich_text(3, 3, (soldiers[3][1][0], ", ", soldiers[3][1][1]))
+            sheet.write_rich_text(4, 3, (soldiers[3][1][0], ", ", soldiers[3][1][1]))
+            sheet.write_rich_text(5, 3, (soldiers[3][2][0], ", ", soldiers[3][2][1]))
+            sheet.write_rich_text(6, 3, (soldiers[3][2][0], ", ", soldiers[3][2][1]))
+        elif (len(soldiers[3])) == 2:
+            sheet.write_rich_text(1, 3, (soldiers[3][0][0], ", ", soldiers[3][0][1]))
+            sheet.write_rich_text(2, 3, (soldiers[3][0][0], ", ", soldiers[3][0][1]))
+            sheet.write_rich_text(5, 3, (soldiers[3][1][0], ", ", soldiers[3][1][1]))
+            sheet.write_rich_text(6, 3, (soldiers[3][1][0], ", ", soldiers[3][1][1]))
+        elif (len(soldiers[3])) == 1:
+            sheet.write_rich_text(5, 3, (soldiers[3][0][0], ", ", soldiers[3][0][1]))
+            sheet.write_rich_text(6, 3, (soldiers[3][0][0], ", ", soldiers[3][0][1]))
+    elif (len(soldiers[3][0])) == 1:
+        if (len(soldiers[3])) == 3:
+            sheet.write_rich_text(1, 3, (soldiers[3][0][0], " "))
+            sheet.write_rich_text(2, 3, (soldiers[3][0][0], " "))
+            sheet.write_rich_text(3, 3, (soldiers[3][1][0], " "))
+            sheet.write_rich_text(4, 3, (soldiers[3][1][0], " "))
+            sheet.write_rich_text(5, 3, (soldiers[3][2][0], " "))
+            sheet.write_rich_text(6, 3, (soldiers[3][2][0], " "))
+        elif (len(soldiers[3])) == 2:
+            sheet.write_rich_text(1, 3, (soldiers[3][0][0], " "))
+            sheet.write_rich_text(2, 3, (soldiers[3][0][0], " "))
+            sheet.write_rich_text(5, 3, (soldiers[3][1][0], " "))
+            sheet.write_rich_text(6, 3, (soldiers[3][1][0], ","))
+        elif (len(soldiers[3])) == 1:
+            sheet.write_rich_text(5, 3, (soldiers[3][0][0], " "))
+            sheet.write_rich_text(6, 3, (soldiers[3][0][0], " "))
+    sheet.write_rich_text(1, 1, (soldiers[4], " "))
+    sheet.write_rich_text(1, 2, (soldiers[5], " "))
+    sheet.write_rich_text(2, 1, (soldiers[6], " "))
+    sheet.write_rich_text(2, 2, (soldiers[7], " "))
+    sheet.write_rich_text(3, 1, (soldiers[8], " "))
+    sheet.write_rich_text(3, 2, (soldiers[9], " "))
+    sheet.write_rich_text(4, 1, (soldiers[10], " "))
+    sheet.write_rich_text(4, 2, (soldiers[11], " "))
+    sheet.write_rich_text(5, 1, (soldiers[12], " "))
+    sheet.write_rich_text(5, 2, (soldiers[13], " "))
+    sheet.write_rich_text(6, 1, (soldiers[14], " "))
+    sheet.write_rich_text(6, 2, (soldiers[15], " "))
+    sheet.col(0).width = 3000
+    sheet.col(1).width = 5000
+    sheet.col(2).width = 5000
+    sheet.col(3).width = 8000
+    sheet.col(4).width = 5000
+    sheet.col(5).width = 8000
+    book.save(wb_name + ".xls")
+
+    return wb_name
+
+
+def cycle2(dict, siurimNum, SiurimNumEdit):
+    # Mitbah first, then hamal, then siurim and then shmirot
+    list_of_soldiers = []
+    hamal_list = []
+    siurim_list = []
+    dict2 = {}
+    mitbah, dict2 = doMitbah(dict, siurimNum)
+    for i in mitbah:
+        list_of_soldiers.append(i)
+    for j in range(3):
+        hamal, dict2 = doHamal(dict2, SiurimNumEdit, siurimNum)
+        hamal_list.append(hamal)
+        for i in dict2:
+            if dict2[i]["RestingHours"] > 0:
+                dict2[i]["RestingHours"] -= 4
+    for j in range(siurimNum):
+        siur, dict2 = doSiur(dict2, siurimNum, SiurimNumEdit)
+        siurim_list.append(siur)
+        for i in dict2:
+            if dict2[i]["RestingHours"] > 0:
+                dict2[i]["RestingHours"] -= 4
+    list_of_soldiers.append(hamal_list)
+    list_of_soldiers.append(siurim_list)
+    for i in range(6):
+        sg, dict2 = doSG(dict2)
+        list_of_soldiers.append(sg)
+        tapuz, dict2 = doTapuz(dict2)
+        list_of_soldiers.append(tapuz)
+        for i in dict2:
+            if dict2[i]["RestingHours"] > 0:
+                dict2[i]["RestingHours"] -= 4
+    rewriteExcel(dict2)
+    excel_file = makeExcel2(list_of_soldiers, siurimNum, SiurimNumEdit)
+    print("Succsfully made a new shavtzak with the new cycle.")
+    os.startfile(excel_file + ".xls")
+    return list_of_soldiers
+
+
 def cycle(dict, siurimNum, hamalNum):
     # TODO: MAKE SIURIMNUM AND HAMALNUM MEAN SOMETHING (REWRITE THE EXCEL.WRITE ALGORITHM), FIX HIGHLIGHT ON EXCEL
-    # Mitbah
     list_of_soldiers = []
-    dict2 = {}
     mitbah, dict2 = doMitbah(dict)
     list_of_soldiers.append(mitbah)
-    hamal, dict2 = doHamal(dict2)
+    hamal, dict2 = doHamal(dict2, 3)
     list_of_soldiers.append(hamal)
-    siur, dict2 = doSiur(dict2)
+    siur, dict2 = doSiur(dict2, 2)
     list_of_soldiers.append(siur)
     sg, dict2 = doSG(dict2)
     list_of_soldiers.append(sg)
