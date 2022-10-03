@@ -225,7 +225,6 @@ def doSiur(dict, siurimNum, siurimNumEdit):
             if i == j:
                 dict[j]["Siur"] += 1
                 dict[j]["RestingHours"] = siurimNum * 8 + 12
-    print(list_of_soldiers[r])
     return list_of_soldiers[r], dict
 
 
@@ -302,6 +301,22 @@ def doSG(dict):
     return soldier, dict
 
 
+def doSG2(dict):
+    num = highest(dict, "S.G")
+    list_to_pick = []
+    for i in dict:
+        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["S.G"] <= num) and (
+                dict[i]["MitbahCooldown"] < 2):
+            for k in range(int(dict[i]["S.G"])-1, int(num)):
+                list_to_pick.append(i)
+    soldier = random.choice(list_to_pick)
+    for i in dict:
+        if i == soldier:
+            dict[i]["RestingHours"] = 12
+            dict[i]["S.G"] += 1
+    return soldier, dict
+
+
 def doTapuz(dict):
     num = highest(dict, "Tapuz")
     soldier = ''
@@ -309,6 +324,22 @@ def doTapuz(dict):
         if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["Tapuz"] <= num) and (dict[i]["MitbahCooldown"] < 2):
             soldier = i
             num = dict[i]["Tapuz"]
+    for i in dict:
+        if i == soldier:
+            dict[i]["RestingHours"] = 12
+            dict[i]["Tapuz"] += 1
+    return soldier, dict
+
+
+def doTapuz2(dict):
+    num = highest(dict, "Tapuz")
+    list_to_pick = []
+    for i in dict:
+        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["Tapuz"] <= num) and (
+                dict[i]["MitbahCooldown"] < 2):
+            for k in range(int(dict[i]["Tapuz"])-1, int(num)):
+                list_to_pick.append(i)
+    soldier = random.choice(list_to_pick)
     for i in dict:
         if i == soldier:
             dict[i]["RestingHours"] = 12
@@ -344,7 +375,9 @@ def makeExcel2(soldiers, siurim, hamal):
         elif type(i) == list and type(i[0]) != list:
             for j in i:
                 all_people.append(j)
-        if type(i[0]) == list:
+        elif type(i) == dict:
+            return ("Could not make perfect shavtzak!")
+        elif type(i[0]) == list:
             for j in i:
                 for k in j:
                     all_people.append(k)
@@ -414,7 +447,7 @@ def makeExcel2(soldiers, siurim, hamal):
             sheet.write_rich_text(1, 3, (soldiers[3][0][0], " "))
             sheet.write_rich_text(2, 3, (soldiers[3][0][0], " "))
             sheet.write_rich_text(5, 3, (soldiers[3][1][0], " "))
-            sheet.write_rich_text(6, 3, (soldiers[3][1][0], ","))
+            sheet.write_rich_text(6, 3, (soldiers[3][1][0], " "))
         elif (len(soldiers[3])) == 1:
             sheet.write_rich_text(5, 3, (soldiers[3][0][0], " "))
             sheet.write_rich_text(6, 3, (soldiers[3][0][0], " "))
@@ -437,11 +470,11 @@ def makeExcel2(soldiers, siurim, hamal):
     sheet.col(4).width = 5000
     sheet.col(5).width = 8000
     book.save(wb_name + ".xls")
+    return wb_name, list_of_doubled
 
-    return wb_name
 
-
-def cycle2(dict, siurimNum, SiurimNumEdit):
+def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev):
+    time1 = time.process_time()
     # Mitbah first, then hamal, then siurim and then shmirot
     list_of_soldiers = []
     hamal_list = []
@@ -451,36 +484,42 @@ def cycle2(dict, siurimNum, SiurimNumEdit):
     for i in mitbah:
         list_of_soldiers.append(i)
     for j in range(3):
-        hamal, dict2 = doHamal(dict2, SiurimNumEdit, siurimNum)
+        hamal, dict2 = doHamal(dict2, SiurimNumEdit, siurimNum) # make 3 hamals
         hamal_list.append(hamal)
         for i in dict2:
             if dict2[i]["RestingHours"] > 0:
-                dict2[i]["RestingHours"] -= 4
+                dict2[i]["RestingHours"] -= 4 # so they can do other missions other than hamal
     for j in range(siurimNum):
         siur, dict2 = doSiur(dict2, siurimNum, SiurimNumEdit)
         siurim_list.append(siur)
         for i in dict2:
             if dict2[i]["RestingHours"] > 0:
-                dict2[i]["RestingHours"] -= 4
+                dict2[i]["RestingHours"] -= 4 # same as hamal
     list_of_soldiers.append(hamal_list)
     list_of_soldiers.append(siurim_list)
     for i in range(6):
-        sg, dict2 = doSG(dict2)
+        sg, dict2 = doSG2(dict2)
         list_of_soldiers.append(sg)
-        tapuz, dict2 = doTapuz(dict2)
+        tapuz, dict2 = doTapuz2(dict2)
         list_of_soldiers.append(tapuz)
         for i in dict2:
             if dict2[i]["RestingHours"] > 0:
                 dict2[i]["RestingHours"] -= 4
-    rewriteExcel(dict2)
-    excel_file = makeExcel2(list_of_soldiers, siurimNum, SiurimNumEdit)
-    print("Succsfully made a new shavtzak with the new cycle.")
+    excel_file, doubled = makeExcel2(list_of_soldiers, siurimNum, SiurimNumEdit) # make the new excel shavtzak file
+    if attempts == 0:
+        print("Could not make perfect shavtzak withing the given attempts.")
+        return
+    if makePerfect:
+        if doubled:
+            print("Making perfect shavtzak.")
+            cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts-1, sevev)
+    else:
+        print("Made shavtzak.")
     os.startfile(excel_file + ".xls")
-    return list_of_soldiers
+    rewriteExcel(dict2)  # upload the information to the original excel file and update the information on it
 
-
+"""old cycle, obsolete
 def cycle(dict, siurimNum, hamalNum):
-    # TODO: MAKE SIURIMNUM AND HAMALNUM MEAN SOMETHING (REWRITE THE EXCEL.WRITE ALGORITHM), FIX HIGHLIGHT ON EXCEL
     list_of_soldiers = []
     mitbah, dict2 = doMitbah(dict)
     list_of_soldiers.append(mitbah)
@@ -542,6 +581,6 @@ def cycle(dict, siurimNum, hamalNum):
     excel_file = makeExcel(list_of_soldiers)
     print("Succsfully made a new shavtzak.")
     os.startfile(excel_file+".xls")
-    return list_of_soldiers
+    return list_of_soldiers"""
 
 
