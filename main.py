@@ -23,7 +23,10 @@ def main():
         list_of_soldiers.append(soldier_value)
 
     dict = listToDict(list_of_soldiers)
-    #cycle2(dict, 2, 1, False, 200, 2)
+    dict2 = dict.copy()
+    #cycle2(dict, 2, 1, True, 200, 1)
+    time.sleep(2)
+    #cycle2(dict2, 2, 1, True, 200, 2)
 
 
     """
