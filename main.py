@@ -14,7 +14,6 @@ def window(dict):
 
 
 def main():
-    # TODO SEPERATE CYCLE2 SO YOU CAN RECURSE THROUGH IT
     wbr = xlrd.open_workbook("D:\ShavTzak\shavtzak.xls")
     sheets = wbr.sheets()[0]
     list_of_soldiers = []
