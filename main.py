@@ -23,7 +23,8 @@ def main():
         list_of_soldiers.append(soldier_value)
 
     dict = listToDict(list_of_soldiers)
-    #list = cycle2(dict, 3, 2, False, 200, 1)
+    #cycle2(dict, 2, 1, False, 200, 2)
+
 
     """
     The code works in 6 cycles, updating the rest hours & current mission of each soldier on duty. This will be done by calling in a specific function several times.
