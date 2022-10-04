@@ -475,18 +475,18 @@ def makeExcel2(soldiers, siurim, hamal):
 
 def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev):
     # Mitbah first, then hamal, then siurim and then shmirot
-    dict2 = dict
-    list_of_soldiers, doubled = computeList(dict, siurimNum, SiurimNumEdit, sevev)
+    dict2 = dict.copy()
+    list_of_soldiers, doubled = computeList(dict2, siurimNum, SiurimNumEdit, sevev)
     if attempts == 0:
         print("Could not make perfect shavtzak withing the given attempts.")
         return
-    if makePerfect:
+    if makePerfect or list_of_soldiers == []:
         if doubled:
             print("Making perfect shavtzak.")
             while doubled != [] and attempts > 0:
                 print(attempts)
                 dict2 = dict
-                list_of_soldiers, doubled = computeList(dict2, siurimNum, SiurimNumEdit, sevev)
+                list_of_soldiers, doubled = computeList(dict, siurimNum, SiurimNumEdit, sevev)
                 attempts -= 1
             dict = dict2
     print("Made shavtzak.")
@@ -495,11 +495,23 @@ def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev):
     rewriteExcel(dict2)  # upload the information to the original excel file and update the information on it
 
 
-def computeList(dict, siurimNum, SiurimNumEdit, sevev):
+def computeList(dict, siurimNum, SiurimNumEdit, sevev): # KNOWN ERROR: THE SHAVTZAK CRASHES WHEN YOU RUN SEVEV MP AND THEN SEVEV SMP ON PERFECT MODE.
     list_of_soldiers = []
     hamal_list = []
     siurim_list = []
-    dict2 = {}
+    dict2 = dict
+    if sevev == 0: # normal
+        pass
+    elif sevev == 1: # MP
+        for i in list(dict2):
+            if not dict2[i]["IsSevevMP"]:
+                dict2.pop(i)
+    elif sevev == 2: # smp
+        for i in list(dict2):
+            if dict2[i]["IsSevevMP"]:
+                dict2.pop(i)
+            if i == "Lidor":
+                dict2.pop(i)
     mitbah, dict2 = doMitbah(dict, siurimNum)
     for i in mitbah:
         list_of_soldiers.append(i)
@@ -528,7 +540,9 @@ def computeList(dict, siurimNum, SiurimNumEdit, sevev):
     list_of_doubled = []
     all_people = []
     for i in list_of_soldiers:
-        if type(i) == str:
+        if i == {}:
+            return [], ["Data"]
+        elif type(i) == str:
             all_people.append(i)
         elif type(i) == list and type(i[0]) != list:
             for j in i:
