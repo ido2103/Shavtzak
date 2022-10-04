@@ -41,7 +41,7 @@ class MyWindow(QMainWindow):
         self.b1.setText("צור שבצק")
         self.b1.move(5, 465)
         time1 = time.process_time()
-        self.b1.clicked.connect(lambda: cycle2(dict, int(self.siurimEdit.text()), int(self.SiurimNumEdit.text()), self.makePerfect, 200, self.index))
+        self.b1.clicked.connect(lambda: cycle2(dict, int(self.siurimEdit.text()), int(self.SiurimNumEdit.text()), self.makePerfect, int(self.attemptsmEdit.text()), self.index))
         self.b1.clicked.connect(lambda: self.updateCounter(time.process_time()-time1))
 
 
@@ -73,6 +73,15 @@ class MyWindow(QMainWindow):
         self.dropdown.addItems(['רגיל', "סבב מפ", "סבב סמפ"])
         self.dropdown.move(380, 110)
         self.dropdown.currentIndexChanged.connect(self.index_changed)
+
+        self.attempts = QtWidgets.QLabel(self)
+        self.attempts.setText("לחץ כדי להזין כמה נסיונות לשבצק המושלם")
+        self.attempts.move(276, 150)
+        self.attempts.adjustSize()
+
+        self.attemptsmEdit = QtWidgets.QLineEdit(self)
+        self.attemptsmEdit.setText("200")
+        self.attemptsmEdit.move(380, 170)
 
     def updateCounter(self, x):
         x = str(x)
