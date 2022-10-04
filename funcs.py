@@ -282,7 +282,7 @@ def doHamal(dict, hamalNum, siurimNum):
             soldier = i
     for i in dict:
         if i == soldier:
-            dict[i]["RestingHours"] = (hamalNum * 8) + (siurimNum * 8) + 16
+            dict[i]["RestingHours"] = siurimNum * 8 + siurimNum * 8 + 12
             dict[i]["Hamal"] += 1
     return soldier, dict
 
@@ -474,8 +474,28 @@ def makeExcel2(soldiers, siurim, hamal):
 
 
 def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev):
-    time1 = time.process_time()
     # Mitbah first, then hamal, then siurim and then shmirot
+    dict2 = dict
+    list_of_soldiers, doubled = computeList(dict, siurimNum, SiurimNumEdit, sevev)
+    if attempts == 0:
+        print("Could not make perfect shavtzak withing the given attempts.")
+        return
+    if makePerfect:
+        if doubled:
+            print("Making perfect shavtzak.")
+            while doubled != [] and attempts > 0:
+                print(attempts)
+                dict2 = dict
+                list_of_soldiers, doubled = computeList(dict2, siurimNum, SiurimNumEdit, sevev)
+                attempts -= 1
+            dict = dict2
+    print("Made shavtzak.")
+    excel_file, x = makeExcel2(list_of_soldiers, siurimNum, SiurimNumEdit) # make the new excel shavtzak file
+    os.startfile(excel_file + ".xls")
+    rewriteExcel(dict2)  # upload the information to the original excel file and update the information on it
+
+
+def computeList(dict, siurimNum, SiurimNumEdit, sevev):
     list_of_soldiers = []
     hamal_list = []
     siurim_list = []
@@ -484,17 +504,17 @@ def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev):
     for i in mitbah:
         list_of_soldiers.append(i)
     for j in range(3):
-        hamal, dict2 = doHamal(dict2, SiurimNumEdit, siurimNum) # make 3 hamals
+        hamal, dict2 = doHamal(dict2, SiurimNumEdit, siurimNum)
         hamal_list.append(hamal)
         for i in dict2:
             if dict2[i]["RestingHours"] > 0:
-                dict2[i]["RestingHours"] -= 4 # so they can do other missions other than hamal
+                dict2[i]["RestingHours"] -= 4  # so they can do other missions other than hamal
     for j in range(siurimNum):
         siur, dict2 = doSiur(dict2, siurimNum, SiurimNumEdit)
         siurim_list.append(siur)
         for i in dict2:
             if dict2[i]["RestingHours"] > 0:
-                dict2[i]["RestingHours"] -= 4 # same as hamal
+                dict2[i]["RestingHours"] -= 4  # same as hamal
     list_of_soldiers.append(hamal_list)
     list_of_soldiers.append(siurim_list)
     for i in range(6):
@@ -505,82 +525,23 @@ def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev):
         for i in dict2:
             if dict2[i]["RestingHours"] > 0:
                 dict2[i]["RestingHours"] -= 4
-    excel_file, doubled = makeExcel2(list_of_soldiers, siurimNum, SiurimNumEdit) # make the new excel shavtzak file
-    if attempts == 0:
-        print("Could not make perfect shavtzak withing the given attempts.")
-        return
-    if makePerfect:
-        if doubled:
-            print("Making perfect shavtzak.")
-            cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts-1, sevev)
-    else:
-        print("Made shavtzak.")
-    os.startfile(excel_file + ".xls")
-    rewriteExcel(dict2)  # upload the information to the original excel file and update the information on it
+    list_of_doubled = []
+    all_people = []
+    for i in list_of_soldiers:
+        if type(i) == str:
+            all_people.append(i)
+        elif type(i) == list and type(i[0]) != list:
+            for j in i:
+                all_people.append(j)
+        elif type(i[0]) == list:
+            for j in i:
+                for k in j:
+                    all_people.append(k)
+    for i in range(len(all_people)):
+        for j in range(1 + i, len(all_people)):
+            if all_people[i] == all_people[j]:
+                list_of_doubled.append(all_people[i])
 
-"""old cycle, obsolete
-def cycle(dict, siurimNum, hamalNum):
-    list_of_soldiers = []
-    mitbah, dict2 = doMitbah(dict)
-    list_of_soldiers.append(mitbah)
-    hamal, dict2 = doHamal(dict2, 3)
-    list_of_soldiers.append(hamal)
-    siur, dict2 = doSiur(dict2, 2)
-    list_of_soldiers.append(siur)
-    sg, dict2 = doSG(dict2)
-    list_of_soldiers.append(sg)
-    tapuz, dict2 = doTapuz(dict2)
-    list_of_soldiers.append(tapuz)
-    for i in dict2:
-        if dict2[i]["RestingHours"] > 0:
-            dict2[i]["RestingHours"] -= 4
-    sg, dict2 = doSG(dict2)
-    list_of_soldiers.append(sg)
-    tapuz, dict2 = doTapuz(dict2)
-    list_of_soldiers.append(tapuz)
-    for i in dict2:
-        if dict2[i]["RestingHours"] > 0:
-            dict2[i]["RestingHours"] -= 4
-    hamal, dict2 = doHamal(dict2)
-    list_of_soldiers.append(hamal)
-    siur, dict2 = doSiur(dict2)
-    list_of_soldiers.append(siur)
-    sg, dict2 = doSG(dict2)
-    list_of_soldiers.append(sg)
-    tapuz, dict2 = doTapuz(dict2)
-    list_of_soldiers.append(tapuz)
-    for i in dict2:
-        if dict2[i]["RestingHours"] > 0:
-            dict2[i]["RestingHours"] -= 4
-    sg, dict2 = doSG(dict2)
-    list_of_soldiers.append(sg)
-    tapuz, dict2 = doTapuz(dict2)
-    list_of_soldiers.append(tapuz)
-    for i in dict2:
-        if dict2[i]["RestingHours"] > 0:
-            dict2[i]["RestingHours"] -= 4
-    hamal, dict2 = doHamal(dict2)
-    list_of_soldiers.append(hamal)
-    siur, dict2 = doSiur(dict2)
-    list_of_soldiers.append(siur)
-    sg, dict2 = doSG(dict2)
-    list_of_soldiers.append(sg)
-    tapuz, dict2 = doTapuz(dict2)
-    list_of_soldiers.append(tapuz)
-    for i in dict2:
-        if dict2[i]["RestingHours"] > 0:
-            dict2[i]["RestingHours"] -= 4
-    sg, dict2 = doSG(dict2)
-    list_of_soldiers.append(sg)
-    tapuz, dict2 = doTapuz(dict2)
-    list_of_soldiers.append(tapuz)
-    for i in dict2:
-        if dict2[i]["RestingHours"] > 0:
-            dict2[i]["RestingHours"] -= 4
-    rewriteExcel(dict2)
-    excel_file = makeExcel(list_of_soldiers)
-    print("Succsfully made a new shavtzak.")
-    os.startfile(excel_file+".xls")
-    return list_of_soldiers"""
+    return list_of_soldiers, list_of_doubled
 
 
