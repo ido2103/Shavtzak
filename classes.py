@@ -1,6 +1,6 @@
 from funcs import *
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import  QMainWindow
 import time
 
 
@@ -40,18 +40,7 @@ class MyWindow(QMainWindow):
         self.b1 = QtWidgets.QPushButton(self)
         self.b1.setText("צור שבצק")
         self.b1.move(5, 465)
-        time1 = time.process_time()
         self.b1.clicked.connect(lambda: cycle2(dict, int(self.siurimEdit.text()), int(self.SiurimNumEdit.text()), self.makePerfect, int(self.attemptsmEdit.text()), self.index))
-        self.b1.clicked.connect(lambda: self.updateCounter(time.process_time()-time1))
-
-
-        self.counterText = QtWidgets.QLabel(self)
-        self.counterText.setText("זמן: ")
-        self.counterText.adjustSize()
-        self.counterText.move(80, 120)
-
-        self.counter = QtWidgets.QLabel(self)
-        self.counter.move(52, 120)
 
         self.perfectLabel = QtWidgets.QLabel(self)
         self.perfectLabel.setText("לחץ על מנת לאפשר שבצק מושלם.")
@@ -83,11 +72,6 @@ class MyWindow(QMainWindow):
         self.attemptsmEdit.setText("200")
         self.attemptsmEdit.move(380, 170)
 
-    def updateCounter(self, x):
-        x = str(x)
-        self.counter.setText(x[0:5])
-        self.counter.adjustSize()
-
     def checkPerfectButton(self):
         if self.perfectbutton.isChecked():
             self.perfectbutton.setStyleSheet("background-color : lightblue")
@@ -95,6 +79,7 @@ class MyWindow(QMainWindow):
         else:
             self.perfectbutton.setStyleSheet("background-color : lightgrey")
             self.makePerfect = False
+
     def index_changed(self, index):
         self.index = index
         print(index)
