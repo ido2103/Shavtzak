@@ -505,12 +505,11 @@ def makeExcel2(soldiers, siurim, hamal):
 
 def cycle2(dict1, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev):
     # Mitbah first, then hamal, then siurim and then shmirot
-    dict2 = dict(dict1)
-    list_of_soldiers, doubled = computeList(dict2, siurimNum, SiurimNumEdit, sevev)
+    dict2 = dict1
+    list_of_soldiers, doubled = computeList(dict1, siurimNum, SiurimNumEdit, sevev)
     if attempts == 0:
         print("Could not make perfect shavtzak withing the given attempts.")
         return
-    print(doubled)
     if makePerfect and doubled:
         print("Making perfect shavtzak.")
         while doubled != [] and attempts > 0:
