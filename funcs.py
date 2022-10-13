@@ -6,7 +6,7 @@ from xlutils.copy import copy
 from time import gmtime, strftime
 import os
 import time
-
+import copy as cp
 
 
 def avg(dict, key):
@@ -219,7 +219,6 @@ def doSiur(dict, siurimNum, siurimNumEdit):
                     list_of_soldiers.remove(i)
                     break
     r = random.randint(0, len(list_of_soldiers)-1)
-
     for i in list_of_soldiers[r]:
         for j in dict:
             if i == j:
@@ -229,12 +228,13 @@ def doSiur(dict, siurimNum, siurimNumEdit):
 
 
 def doMitbah(dict, siurimNum):
-    rb = open_workbook("shavtzak.xls")
     highest1 = highest(dict, "Mitbach")
     highest2 = highest1
     soldier1 = {}
     soldier2 = {}
     soldiers = []
+    list_to_pick = []
+    soldier = random.choice(list_to_pick)
     for i in dict:
         if dict[i]["Mitbach"] <= highest1 and (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorMitbach"] == 0) and (
                 dict[i]["MitbahCooldown"] <= 0):
@@ -249,17 +249,48 @@ def doMitbah(dict, siurimNum):
             soldier1, soldier2 = soldier2, soldier1
     soldiers.append(soldier1)
     soldiers.append(soldier2)
+    print(soldiers)
+    print(highest1)
     for i in dict:
         if i == soldier1:
-            value = rb.sheet_by_index(0).cell(int(dict[i]["Row"]), 4).value
-            value += 1
-            dict[i]["Mitbah"] = value  # updating the mitbach count
+            dict[i]["Mitbah"] += 1  # updating the mitbach count
             dict[i]["MitbahCooldown"] = 3  # updating the mitbachcd
             dict[i]["RestingHours"] = (siurimNum * 8) + 24
         elif i == soldier2:
-            value = rb.sheet_by_index(0).cell(int(dict[i]["Row"]), 4).value
-            value += 1
-            dict[i]["Mitbah"] = value
+            dict[i]["Mitbah"] += 1
+            dict[i]["MitbahCooldown"] = 3
+            dict[i]["RestingHours"] = (siurimNum * 8) + 24
+    for i in soldiers:
+        for j in dict:
+            if i == j:
+                dict[j]["Mitbach"] += 1
+
+    for i in dict:
+        if dict[i]["MitbahCooldown"] > 0:
+            dict[i]["MitbahCooldown"] -= 1
+    return soldiers, dict
+
+
+def doMitbah2(dict, siurimNum):
+    num = highest(dict, "Mitbach")
+    list_to_pick = []
+    soldier1, soldier2 = {}, {}
+    for i in dict:
+        if (dict[i]["Mitbach"] <= num) and (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorMitbach"] == 0) and (dict[i]["MitbahCooldown"] <= 0):
+            for k in range(int(dict[i]["Mitbach"])-1, int(num)):
+                list_to_pick.append(i)
+    soldier1 = random.choice(list_to_pick)
+    for i in list_to_pick:
+        if i == soldier1: list_to_pick.remove(i)
+    soldier2 = random.choice(list_to_pick)
+    soldiers = [soldier1, soldier2]
+    for i in dict:
+        if i == soldier1:
+            dict[i]["Mitbach"] += 1  # updating the mitbach count
+            dict[i]["MitbahCooldown"] = 3  # updating the mitbachcd
+            dict[i]["RestingHours"] = (siurimNum * 8) + 24
+        elif i == soldier2:
+            dict[i]["Mitbach"] += 1
             dict[i]["MitbahCooldown"] = 3
             dict[i]["RestingHours"] = (siurimNum * 8) + 24
     for i in soldiers:
@@ -287,7 +318,7 @@ def doHamal(dict, hamalNum, siurimNum):
     return soldier, dict
 
 
-def doSG(dict):
+def doSG(dict): # not in use
     num = highest(dict, "S.G")
     soldier = ''
     for i in dict:
@@ -317,7 +348,7 @@ def doSG2(dict):
     return soldier, dict
 
 
-def doTapuz(dict):
+def doTapuz(dict): # not in use
     num = highest(dict, "Tapuz")
     soldier = ''
     for i in dict:
@@ -335,8 +366,7 @@ def doTapuz2(dict):
     num = highest(dict, "Tapuz")
     list_to_pick = []
     for i in dict:
-        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["Tapuz"] <= num) and (
-                dict[i]["MitbahCooldown"] < 2):
+        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["Tapuz"] <= num):
             for k in range(int(dict[i]["Tapuz"])-1, int(num)):
                 list_to_pick.append(i)
     soldier = random.choice(list_to_pick)
@@ -473,33 +503,32 @@ def makeExcel2(soldiers, siurim, hamal):
     return wb_name, list_of_doubled
 
 
-def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev):
+def cycle2(dict1, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev):
     # Mitbah first, then hamal, then siurim and then shmirot
-    dict2 = dict.copy()
+    dict2 = dict(dict1)
     list_of_soldiers, doubled = computeList(dict2, siurimNum, SiurimNumEdit, sevev)
     if attempts == 0:
         print("Could not make perfect shavtzak withing the given attempts.")
         return
-    if makePerfect or list_of_soldiers == []:
-        if doubled:
-            print("Making perfect shavtzak.")
-            while doubled != [] and attempts > 0:
-                print(attempts)
-                dict2 = dict
-                list_of_soldiers, doubled = computeList(dict, siurimNum, SiurimNumEdit, sevev)
-                attempts -= 1
-            dict = dict2
+    print(doubled)
+    if makePerfect and doubled:
+        print("Making perfect shavtzak.")
+        while doubled != [] and attempts > 0:
+            dict2 = cp.deepcopy(dict1)
+            list_of_soldiers, doubled = computeList(dict2, siurimNum, SiurimNumEdit, sevev)
+            print(attempts)
+            attempts -= 1
     print("Made shavtzak.")
     excel_file, x = makeExcel2(list_of_soldiers, siurimNum, SiurimNumEdit) # make the new excel shavtzak file
     os.startfile(excel_file + ".xls")
     rewriteExcel(dict2)  # upload the information to the original excel file and update the information on it
 
 
-def computeList(dict, siurimNum, SiurimNumEdit, sevev): # KNOWN ERROR: THE SHAVTZAK CRASHES WHEN YOU RUN SEVEV MP AND THEN SEVEV SMP ON PERFECT MODE.
+def computeList(dict, siurimNum, SiurimNumEdit, sevev):
     list_of_soldiers = []
     hamal_list = []
     siurim_list = []
-    dict2 = dict
+    dict2 = dict.copy()
     if sevev == 0: # normal
         pass
     elif sevev == 1: # MP
@@ -507,12 +536,11 @@ def computeList(dict, siurimNum, SiurimNumEdit, sevev): # KNOWN ERROR: THE SHAVT
             if not dict2[i]["IsSevevMP"]:
                 dict2.pop(i)
     elif sevev == 2: # smp
+        dict2.pop("Lidor ")
         for i in list(dict2):
             if dict2[i]["IsSevevMP"]:
                 dict2.pop(i)
-            if i == "Lidor":
-                dict2.pop(i)
-    mitbah, dict2 = doMitbah(dict, siurimNum)
+    mitbah, dict2 = doMitbah2(dict2, siurimNum)
     for i in mitbah:
         list_of_soldiers.append(i)
     for j in range(3):
