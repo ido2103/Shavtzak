@@ -288,11 +288,11 @@ def doMitbah2(dict, siurimNum):
         if i == soldier1:
             dict[i]["Mitbach"] += 1  # updating the mitbach count
             dict[i]["MitbahCooldown"] = 3  # updating the mitbachcd
-            dict[i]["RestingHours"] = (siurimNum * 8) + 24
+            dict[i]["RestingHours"] = (siurimNum * 8) + 28
         elif i == soldier2:
             dict[i]["Mitbach"] += 1
             dict[i]["MitbahCooldown"] = 3
-            dict[i]["RestingHours"] = (siurimNum * 8) + 24
+            dict[i]["RestingHours"] = (siurimNum * 8) + 28
     for i in soldiers:
         for j in dict:
             if i == j:
@@ -503,7 +503,10 @@ def makeExcel2(soldiers, siurim, hamal):
     return wb_name, list_of_doubled
 
 
-def cycle2(dict1, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev):
+def cycle2(dict1, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev, inactive):
+    for i in inactive:
+        dict1.pop(i)
+        print(i)
     # Mitbah first, then hamal, then siurim and then shmirot
     dict2 = dict1
     list_of_soldiers, doubled = computeList(dict1, siurimNum, SiurimNumEdit, sevev)
