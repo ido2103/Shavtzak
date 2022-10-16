@@ -1,7 +1,10 @@
-import xlrd
 from classes import *
+import time
+import xlrd
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication
+
+# TODO: UPDATE UI. MAKE PATH GLOBAL AND NOT LOCAL. (USE FILE SHAVTZAK.XLS INSTEAD OF THE PATH)
 
 
 def window(dict):
@@ -21,9 +24,11 @@ def main():
         list_of_soldiers.append(soldier_value)
     dict = listToDict(list_of_soldiers)
     dict2 = dict.copy()
-    #cycle2(dict, 2, 1, False, 200, 0)
-    time.sleep(2)
-    #cycle2(dict2, 3, 2, False, 200, 2)
+    #cycle2(dict, 2, 1, True, 200, 2, {})
+
+    #cycle2(dict, 2, 1, True, 200, 1, {})
+
+    #cycle2(dict2, 2, 1, False, 200, 0, {})
 
     """
     The code works in 6 cycles, updating the rest hours & current mission of each soldier on duty. This will be done by calling in a specific function several times.
