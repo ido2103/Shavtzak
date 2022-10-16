@@ -9,7 +9,6 @@ class MyWindow(QMainWindow):
         self.setGeometry(500, 200, 500, 500)
         self.setWindowTitle("Shavtzak Maker")
         self.initUI(dict)
-        self.makePerfect = False
         self.index = 0
 
 
@@ -66,22 +65,8 @@ class MyWindow(QMainWindow):
         self.b1 = QtWidgets.QPushButton(self)
         self.b1.setText("צור שבצק")
         self.b1.move(5, 465)
-        self.b1.clicked.connect(lambda: cycle2(dict, int(self.siurimEdit.text()), int(self.SiurimNumEdit.text()), self.makePerfect, int(self.attemptsmEdit.text()), self.index, self.removed_list))
+        self.b1.clicked.connect(lambda: cycle2(dict, int(self.siurimEdit.text()), int(self.SiurimNumEdit.text()), False, int(self.attemptsmEdit.text()), self.index, self.removed_list))
         self.tab1.layout.addWidget(self.b1)
-
-
-        self.perfectLabel = QtWidgets.QLabel(self)
-        self.perfectLabel.setText("לחץ על מנת לאפשר שבצק מושלם.")
-        self.perfectLabel.adjustSize()
-        self.perfectLabel.move(320, 0)
-        self.tab1.layout.addWidget(self.perfectLabel)
-
-        self.perfectbutton = QtWidgets.QPushButton("לחץ", self)
-        self.perfectbutton.setGeometry(380, 20, 100, 50)
-        self.perfectbutton.setCheckable(True)
-        self.perfectbutton.clicked.connect(self.checkPerfectButton)
-        self.perfectbutton.setStyleSheet("background-color : lightgrey")
-        self.tab1.layout.addWidget(self.perfectbutton)
 
         self.dropdownLabel = QtWidgets.QLabel(self)
         self.dropdownLabel.setText("לחץ על מנת לבחור מצב שבצק")
@@ -119,13 +104,6 @@ class MyWindow(QMainWindow):
         self.removedList.clicked.connect(lambda: self.item_clicked(self.removedList))
         self.tab2.layout.addWidget(self.removedList)
 
-    def checkPerfectButton(self):
-        if self.perfectbutton.isChecked():
-            self.perfectbutton.setStyleSheet("background-color : lightblue")
-            self.makePerfect = True
-        else:
-            self.perfectbutton.setStyleSheet("background-color : lightgrey")
-            self.makePerfect = False
 
     def item_clicked(self, list):
         if list == self.soldierList:
