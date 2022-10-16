@@ -32,6 +32,20 @@ def highest(dict, key):
     return high
 
 
+def highestindiv(dict, key):
+    highest1, highest2, highest3, highest4 = 0,0,0,0
+    for i in dict:
+        if dict[i][key] > highest1 and dict[i]["Division"] == 1 and dict[i]["RestingHours"] <= 0:
+            highest1 = dict[i][key]
+        elif dict[i][key] > highest2 and dict[i]["Division"] == 2 and dict[i]["RestingHours"] <= 0:
+            highest2 = dict[i][key]
+        elif dict[i][key] > highest3 and dict[i]["Division"] == 3 and dict[i]["RestingHours"] <= 0:
+            highest3 = dict[i][key]
+        elif dict[i][key] > highest4 and dict[i]["Division"] == 4 and dict[i]["RestingHours"] <= 0:
+            highest4 = dict[i][key]
+    return highest1, highest2, highest3, highest4
+
+
 def higherAvg(list, index):
     """
     Returns Lists of higher than averge names
@@ -56,75 +70,179 @@ def listToDict(soldiers):
         dict.update({soldiers[i][0]: temp})
     return dict
 
-"""
-def makeExcel(list):
-    today = str(strftime("%Y-%m-%d", gmtime()))
-    book = xlwt.Workbook()
-    sheet = book.add_sheet("Shavtzak")
-    wb_name = "Shavtzak {0}".format(today)
-    list_of_doubled = []
-    all_people = []
-    style = xlwt.XFStyle()
-    font = xlwt.Font()
-    font.bold = True
-    style.font = font
-    style2 = xlwt.XFStyle()
-    font = xlwt.Font()
-    font.bold = False
-    style2.font = font
-    for i in list:
-        if type(i) == str:
-            all_people.append(i)
-        else:
-            all_people.append(i[0])
-            all_people.append(i[1])
-    for i in range(len(all_people)):
-        for j in range(1 + i, len(all_people)):
-            if all_people[i] == all_people[j]:
-                list_of_doubled.append(all_people[i])
-    sheet.write(0, 0, "Times: ")
-    sheet.write(0, 1, "S.G")
-    sheet.write(0, 2, "Tapuz")
-    sheet.write(0, 3, "Siur")
-    sheet.write(0, 4, "Hamal")
-    sheet.write(0, 5, "Mitbah")
-    sheet.write(1, 0, "6:00-10:00")
-    sheet.write(2, 0, "10:00-14:00")
-    sheet.write(3, 0, "14:00-18:00")
-    sheet.write(4, 0, "18:00-22:00")
-    sheet.write(5, 0, "22:00-2:00")
-    sheet.write(6, 0, "2:00-6:00")
-    sheet.write(1, 5, ", ".join(list[0]),
-                style=style if list[0][0] in list_of_doubled or list[0][1] in list_of_doubled else style2)
-    sheet.write(1, 4, list[1], style=style if list[1] in list_of_doubled else style2)
-    sheet.write(1, 3, ", ".join(list[2]),
-                style=style if list[2][0] in list_of_doubled or list[2][1] in list_of_doubled else style2)
-    sheet.write(1, 1, list[3], style=style if list[3] in list_of_doubled else style2)
-    sheet.write(1, 2, list[4], style=style if list[4] in list_of_doubled else style2)
-    sheet.write(2, 1, list[5], style=style if list[5] in list_of_doubled else style2)
-    sheet.write(2, 2, list[6], style=style if list[6] in list_of_doubled else style2)
-    sheet.write(3, 4, list[7], style=style if list[7] in list_of_doubled else style2)
-    sheet.write(3, 3, ", ".join(list[8]),
-                style=style if list[8][0] in list_of_doubled or list[8][1] in list_of_doubled else style2)
-    sheet.write(3, 1, list[9], style=style if list[9] in list_of_doubled else style2)
-    sheet.write(3, 2, list[10], style=style if list[10] in list_of_doubled else style2)
-    sheet.write(4, 1, list[11], style=style if list[11] in list_of_doubled else style2)
-    sheet.write(4, 2, list[12], style=style if list[12] in list_of_doubled else style2)
-    sheet.write(5, 4, list[13], style=style if list[13] in list_of_doubled else style2)
-    sheet.write(5, 3, ", ".join(list[14]), style=style if list[14][0] in list_of_doubled or list[14][1] else style2)
-    sheet.write(5, 1, list[15], style=style if list[15] in list_of_doubled else style2)
-    sheet.write(5, 2, list[16], style=style if list[16] in list_of_doubled else style2)
-    sheet.write(6, 1, list[17], style=style if list[17] in list_of_doubled else style2)
-    sheet.write(6, 2, list[18], style=style if list[18] in list_of_doubled else style2)
-    sheet.col(0).width = 3000
-    sheet.col(1).width = 3000
-    sheet.col(2).width = 5000
-    sheet.col(3).width = 8000
-    sheet.col(4).width = 5000
-    sheet.col(5).width = 8000
-    book.save(wb_name + ".xls")
-    return wb_name
-"""
+
+def doSiur2(dict, siurimNum, siurimNumEdit):
+    highest1, highest2, highest3, highest4 = highestindiv(dict, "Siur")
+    div1, div2, div3, div4 = [], [], [], []
+    for i in dict:
+        if dict[i]["Siur"] <= highest1 and dict[i]["RestingHours"] <= 0 and dict[i]["Division"] == 1:
+            for k in range(int(dict[i]["Siur"])-1, int(highest1)):
+                div1.append(i)
+        elif dict[i]["Siur"] <= highest2 and dict[i]["RestingHours"] <= 0 and dict[i]["Division"] == 2:
+            for k in range(int(dict[i]["Siur"])-1, int(highest2)):
+                div2.append(i)
+        elif dict[i]["Siur"] <= highest3 and dict[i]["RestingHours"] <= 0 and dict[i]["Division"] == 3:
+            for k in range(int(dict[i]["Siur"])-1, int(highest3)):
+                div3.append(i)
+        elif dict[i]["Siur"] <= highest4 and dict[i]["RestingHours"] <= 0 and dict[i]["Division"] == 4:
+            for k in range(int(dict[i]["Siur"])-1, int(highest4)):
+                div4.append(i)
+    list_of_soldiers = []
+    if siurimNumEdit == 1:
+        if div1: div1 = random.choice(div1)
+        if div2: div2 = random.choice(div2)
+        if div3: div3 = random.choice(div3)
+        if div4: div4 = random.choice(div4)
+        if div1 != []:
+            list_of_soldiers.append([div1])
+        if div2 != []:
+            list_of_soldiers.append([div2])
+        if div3 != []:
+            list_of_soldiers.append([div3])
+        if div4 != []:
+            list_of_soldiers.append([div4])
+    elif siurimNumEdit == 2:
+        try:
+            soldier1 = random.choice(div1)
+            div1.remove(soldier1)
+            for i in range(len(div1)):
+                if soldier1 in div1:
+                    div1.remove(soldier1)
+            soldier2 = random.choice(div1)
+            div1 = [soldier1, soldier2]
+        except Exception:
+            pass
+        try:
+            soldier1 = random.choice(div2)
+            div2.remove(soldier1)
+            for i in range(len(div2)):
+                if soldier1 in div2:
+                    div2.remove(soldier1)
+            soldier2 = random.choice(div2)
+            div2 = [soldier1, soldier2]
+        except Exception:
+            pass
+        try:
+            soldier1 = random.choice(div3)
+            div3.remove(soldier1)
+            for i in range(len(div3)):
+                if soldier1 in div3:
+                    div3.remove(soldier1)
+            soldier2 = random.choice(div3)
+            div3 = [soldier1, soldier2]
+        except Exception:
+            pass
+        try:
+            soldier1 = random.choice(div4)
+            div4.remove(soldier1)
+            for i in range(len(div4)):
+                if soldier1 in div4:
+                    div4.remove(soldier1)
+            soldier2 = random.choice(div4)
+            div4 = [soldier1, soldier2]
+        except Exception:
+            pass
+        list_of_soldiers = [div1,div2,div3,div4]
+        for k in range(4):
+            for i in list_of_soldiers:
+                if i == []:
+                    list_of_soldiers.remove(i)
+        if siurimNumEdit == 1:
+            for i in list_of_soldiers:
+                i.remove(i[1])
+    r = random.randint(0, len(list_of_soldiers)-1)
+    for i in list_of_soldiers[r]:
+        for j in dict:
+            if i == j:
+                dict[j]["Siur"] += 1
+                dict[j]["RestingHours"] = siurimNum * 8 + 12
+    return list_of_soldiers[r], dict
+
+
+def exampleSiur(dict, siurimNum, siurimNumEdit, list):
+    highest1, highest2, highest3, highest4 = highestindiv(dict, "Siur")
+    div1, div2, div3, div4 = [], [], [], []
+    for i in dict:
+        if dict[i]["Siur"] <= highest1 and dict[i]["RestingHours"] <= 0 and dict[i]["Division"] == 1 and i not in list:
+            for k in range(int(dict[i]["Siur"])-1, int(highest1)):
+                div1.append(i)
+        elif dict[i]["Siur"] <= highest2 and dict[i]["RestingHours"] <= 0 and dict[i]["Division"] == 2 and i not in list:
+            for k in range(int(dict[i]["Siur"])-1, int(highest2)):
+                div2.append(i)
+        elif dict[i]["Siur"] <= highest3 and dict[i]["RestingHours"] <= 0 and dict[i]["Division"] == 3 and i not in list:
+            for k in range(int(dict[i]["Siur"])-1, int(highest3)):
+                div3.append(i)
+        elif dict[i]["Siur"] <= highest4 and dict[i]["RestingHours"] <= 0 and dict[i]["Division"] == 4 and i not in list:
+            for k in range(int(dict[i]["Siur"])-1, int(highest4)):
+                div4.append(i)
+    list_of_soldiers = []
+    if siurimNumEdit == 1:
+        if div1: div1 = random.choice(div1)
+        if div2: div2 = random.choice(div2)
+        if div4: div3 = random.choice(div3)
+        if div4: div4 = random.choice(div4)
+        if div1 != []:
+            list_of_soldiers.append([div1])
+        if div2 != []:
+            list_of_soldiers.append([div2])
+        if div3 != []:
+            list_of_soldiers.append([div3])
+        if div4 != []:
+            list_of_soldiers.append([div4])
+    elif siurimNumEdit == 2:
+        try:
+            soldier1 = random.choice(div1)
+            div1.remove(soldier1)
+            for i in range(len(div1)):
+                if soldier1 in div1:
+                    div1.remove(soldier1)
+            soldier2 = random.choice(div1)
+            div1 = [soldier1, soldier2]
+        except Exception:
+            pass
+        try:
+            soldier1 = random.choice(div2)
+            div2.remove(soldier1)
+            for i in range(len(div2)):
+                if soldier1 in div2:
+                    div2.remove(soldier1)
+            soldier2 = random.choice(div2)
+            div2 = [soldier1, soldier2]
+        except Exception:
+            pass
+        try:
+            soldier1 = random.choice(div3)
+            div3.remove(soldier1)
+            for i in range(len(div3)):
+                if soldier1 in div3:
+                    div3.remove(soldier1)
+            soldier2 = random.choice(div3)
+            div3 = [soldier1, soldier2]
+        except Exception:
+            pass
+        try:
+            soldier1 = random.choice(div4)
+            div4.remove(soldier1)
+            for i in range(len(div4)):
+                if soldier1 in div4:
+                    div4.remove(soldier1)
+            soldier2 = random.choice(div4)
+            div4 = [soldier1, soldier2]
+        except Exception:
+            pass
+        list_of_soldiers = [div1,div2,div3,div4]
+        for k in range(4):
+            for i in list_of_soldiers:
+                if i == []:
+                    list_of_soldiers.remove(i)
+        if siurimNumEdit == 1:
+            for i in list_of_soldiers:
+                i.remove(i[1])
+    new_list = []
+    for i in list_of_soldiers:
+        for j in i:
+            new_list.append(j)
+    return new_list
 
 
 def doSiur(dict, siurimNum, siurimNumEdit):
@@ -227,50 +345,6 @@ def doSiur(dict, siurimNum, siurimNumEdit):
     return list_of_soldiers[r], dict
 
 
-def doMitbah(dict, siurimNum):
-    highest1 = highest(dict, "Mitbach")
-    highest2 = highest1
-    soldier1 = {}
-    soldier2 = {}
-    soldiers = []
-    list_to_pick = []
-    soldier = random.choice(list_to_pick)
-    for i in dict:
-        if dict[i]["Mitbach"] <= highest1 and (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorMitbach"] == 0) and (
-                dict[i]["MitbahCooldown"] <= 0):
-            highest1 = dict[i]["Mitbach"]
-            soldier1 = i
-        elif dict[i]["Mitbach"] <= highest2 and (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorMitbach"] == 0) and (
-                dict[i]["MitbahCooldown"] <= 0):
-            highest2 = dict[i]["Mitbach"]
-            soldier2 = i
-        if highest1 > highest2:
-            highest1, highest2 = highest2, highest1
-            soldier1, soldier2 = soldier2, soldier1
-    soldiers.append(soldier1)
-    soldiers.append(soldier2)
-    print(soldiers)
-    print(highest1)
-    for i in dict:
-        if i == soldier1:
-            dict[i]["Mitbah"] += 1  # updating the mitbach count
-            dict[i]["MitbahCooldown"] = 3  # updating the mitbachcd
-            dict[i]["RestingHours"] = (siurimNum * 8) + 24
-        elif i == soldier2:
-            dict[i]["Mitbah"] += 1
-            dict[i]["MitbahCooldown"] = 3
-            dict[i]["RestingHours"] = (siurimNum * 8) + 24
-    for i in soldiers:
-        for j in dict:
-            if i == j:
-                dict[j]["Mitbach"] += 1
-
-    for i in dict:
-        if dict[i]["MitbahCooldown"] > 0:
-            dict[i]["MitbahCooldown"] -= 1
-    return soldiers, dict
-
-
 def doMitbah2(dict, siurimNum):
     num = highest(dict, "Mitbach")
     list_to_pick = []
@@ -280,8 +354,9 @@ def doMitbah2(dict, siurimNum):
             for k in range(int(dict[i]["Mitbach"])-1, int(num)):
                 list_to_pick.append(i)
     soldier1 = random.choice(list_to_pick)
-    for i in list_to_pick:
-        if i == soldier1: list_to_pick.remove(i)
+    for j in range(0, len(list_to_pick)-1):
+        for i in list_to_pick:
+            if i == soldier1: list_to_pick.remove(i)
     soldier2 = random.choice(list_to_pick)
     soldiers = [soldier1, soldier2]
     for i in dict:
@@ -293,42 +368,22 @@ def doMitbah2(dict, siurimNum):
             dict[i]["Mitbach"] += 1
             dict[i]["MitbahCooldown"] = 3
             dict[i]["RestingHours"] = (siurimNum * 8) + 28
-    for i in soldiers:
-        for j in dict:
-            if i == j:
-                dict[j]["Mitbach"] += 1
-
-    for i in dict:
         if dict[i]["MitbahCooldown"] > 0:
             dict[i]["MitbahCooldown"] -= 1
     return soldiers, dict
 
 
-def doHamal(dict, hamalNum, siurimNum):
+def doHamal2(dict, hamalNum, siurimNum):
     num = highest(dict, "Hamal")
-    soldier = ''
+    hamals = []
     for i in dict:
-        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsHamal"] == 1) and (dict[i]["Hamal"] <= num) and (dict[i]["MitbahCooldown"] < 2):
-            num = dict[i]["Hamal"]
-            soldier = i
-    for i in dict:
-        if i == soldier:
-            dict[i]["RestingHours"] = siurimNum * 8 + siurimNum * 8 + 12
-            dict[i]["Hamal"] += 1
-    return soldier, dict
-
-
-def doSG(dict): # not in use
-    num = highest(dict, "S.G")
-    soldier = ''
-    for i in dict:
-        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["S.G"] <= num) and (dict[i]["MitbahCooldown"] < 2):
-            soldier = i
-            num = dict[i]["S.G"]
-    for i in dict:
-        if i == soldier:
-            dict[i]["RestingHours"] = 12
-            dict[i]["S.G"] += 1
+        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsHamal"] == 1) and (dict[i]["Hamal"] <= num) and (
+                dict[i]["MitbahCooldown"] < 2):
+            for k in range(int(dict[i]["Hamal"])-1, int(num)):
+                hamals.append(i)
+    soldier = random.choice(hamals)
+    dict[soldier]["RestingHours"] = siurimNum * 8 + siurimNum * 8 + 12
+    dict[soldier]["Hamal"] += 1
     return soldier, dict
 
 
@@ -341,24 +396,8 @@ def doSG2(dict):
             for k in range(int(dict[i]["S.G"])-1, int(num)):
                 list_to_pick.append(i)
     soldier = random.choice(list_to_pick)
-    for i in dict:
-        if i == soldier:
-            dict[i]["RestingHours"] = 12
-            dict[i]["S.G"] += 1
-    return soldier, dict
-
-
-def doTapuz(dict): # not in use
-    num = highest(dict, "Tapuz")
-    soldier = ''
-    for i in dict:
-        if (dict[i]["RestingHours"] <= 0) and (dict[i]["IsPtorShmirah"] == 0) and (dict[i]["Tapuz"] <= num) and (dict[i]["MitbahCooldown"] < 2):
-            soldier = i
-            num = dict[i]["Tapuz"]
-    for i in dict:
-        if i == soldier:
-            dict[i]["RestingHours"] = 12
-            dict[i]["Tapuz"] += 1
+    dict[soldier]["RestingHours"] = 12
+    dict[soldier]["S.G"] += 1
     return soldier, dict
 
 
@@ -370,10 +409,8 @@ def doTapuz2(dict):
             for k in range(int(dict[i]["Tapuz"])-1, int(num)):
                 list_to_pick.append(i)
     soldier = random.choice(list_to_pick)
-    for i in dict:
-        if i == soldier:
-            dict[i]["RestingHours"] = 12
-            dict[i]["Tapuz"] += 1
+    dict[soldier]["RestingHours"] = 12
+    dict[soldier]["Tapuz"] += 1
     return soldier, dict
 
 
@@ -503,11 +540,42 @@ def makeExcel2(soldiers, siurim, hamal):
     return wb_name, list_of_doubled
 
 
-def cycle2(dict1, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev, inactive):
+def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev, inactive):
+    dict1 = cp.deepcopy(dict)
     for i in inactive:
-        dict1.pop(i)
-        print(i)
+        if i in dict1:
+            dict1.pop(i)
+    if sevev == 1: # MP
+        if "Lidor" in dict1:
+            dict1.pop("Lidor")
+        for i in list(dict1):
+            if not dict1[i]["IsSevevMP"]:
+                dict1.pop(i)
+    elif sevev == 2: # smp
+        if "Lidor" in dict1:
+            dict1.pop("Lidor")
+        for i in list(dict1):
+            if dict1[i]["IsSevevMP"]:
+                dict1.pop(i)
+    else:
+        pass
     # Mitbah first, then hamal, then siurim and then shmirot
+    list_to_check = []
+    dictToIter = cp.deepcopy(dict1)
+    if not makePerfect:
+        try:
+            for i in dictToIter:
+                num = len(list_to_check)
+                if num < 6 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsPtorShmirah"] == False: list_to_check.append(i)
+                elif 12 > num >= 6 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsPtorShmirah"] == False: list_to_check.append(i)
+                elif 12 <= num < 13 and dictToIter[i]["RestingHours"] <= 0 and exampleSiur(dictToIter, siurimNum, SiurimNumEdit, list_to_check) != []: list_to_check.append(exampleSiur(dictToIter, siurimNum, SiurimNumEdit, list_to_check))
+                elif 13 <= num < 15 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsPtorMitbach"] == False and dictToIter[i]["MitbahCooldown"] <= 0 and i not in list_to_check[12]: list_to_check.append(i)
+                elif 15 <= num <= 16 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsHamal"] == True and i not in list_to_check[12]: list_to_check.append(i)
+                elif num > 16:
+                    makePerfect = True
+        except Exception as exc:
+            print(exc)
+    print(len(list_to_check), list_to_check)
     dict2 = dict1
     list_of_soldiers, doubled = computeList(dict1, siurimNum, SiurimNumEdit, sevev)
     if attempts == 0:
@@ -531,28 +599,18 @@ def computeList(dict, siurimNum, SiurimNumEdit, sevev):
     hamal_list = []
     siurim_list = []
     dict2 = dict.copy()
-    if sevev == 0: # normal
-        pass
-    elif sevev == 1: # MP
-        for i in list(dict2):
-            if not dict2[i]["IsSevevMP"]:
-                dict2.pop(i)
-    elif sevev == 2: # smp
-        dict2.pop("Lidor ")
-        for i in list(dict2):
-            if dict2[i]["IsSevevMP"]:
-                dict2.pop(i)
+
     mitbah, dict2 = doMitbah2(dict2, siurimNum)
     for i in mitbah:
         list_of_soldiers.append(i)
     for j in range(3):
-        hamal, dict2 = doHamal(dict2, SiurimNumEdit, siurimNum)
+        hamal, dict2 = doHamal2(dict2, SiurimNumEdit, siurimNum)
         hamal_list.append(hamal)
         for i in dict2:
             if dict2[i]["RestingHours"] > 0:
                 dict2[i]["RestingHours"] -= 4  # so they can do other missions other than hamal
     for j in range(siurimNum):
-        siur, dict2 = doSiur(dict2, siurimNum, SiurimNumEdit)
+        siur, dict2 = doSiur2(dict2, siurimNum, SiurimNumEdit)
         siurim_list.append(siur)
         for i in dict2:
             if dict2[i]["RestingHours"] > 0:
