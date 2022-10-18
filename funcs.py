@@ -1,4 +1,3 @@
-import xlrd
 import xlwt
 import random
 from xlrd import open_workbook
@@ -571,11 +570,12 @@ def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev, inactiv
                 elif 12 <= num < 13 and dictToIter[i]["RestingHours"] <= 0 and exampleSiur(dictToIter, siurimNum, SiurimNumEdit, list_to_check) != []: list_to_check.append(exampleSiur(dictToIter, siurimNum, SiurimNumEdit, list_to_check))
                 elif 13 <= num < 15 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsPtorMitbach"] == False and dictToIter[i]["MitbahCooldown"] <= 0 and i not in list_to_check[12]: list_to_check.append(i)
                 elif 15 <= num <= 16 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsHamal"] == True and i not in list_to_check[12]: list_to_check.append(i)
-                elif num > 16:
-                    makePerfect = True
+                elif num >= 16 and dictToIter[i]["RestingHours"] <= 0: list_to_check.append(i)
+            if len(list_to_check) >= 16:
+                makePerfect = True
         except Exception as exc:
             print(exc)
-    print(len(list_to_check), list_to_check)
+    print("Len: {0}".format(len(list_to_check)))
     dict2 = dict1
     list_of_soldiers, doubled = computeList(dict1, siurimNum, SiurimNumEdit, sevev)
     if attempts == 0:
