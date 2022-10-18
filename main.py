@@ -4,7 +4,7 @@ import xlrd
 import sys
 from PyQt5.QtWidgets import QApplication
 
-# TODO: UPDATE UI. MAKE PATH GLOBAL AND NOT LOCAL. (USE FILE SHAVTZAK.XLS INSTEAD OF THE PATH)
+# TODO: UPDATE UI.
 
 
 def window(dict):
@@ -15,7 +15,7 @@ def window(dict):
 
 
 def main():
-    wbr = xlrd.open_workbook("D:\ShavTzak\shavtzak.xls")
+    wbr = xlrd.open_workbook("shavtzak.xls")
     sheets = wbr.sheets()[0]
     list_of_soldiers = []
     index = 1
