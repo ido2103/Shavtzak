@@ -539,6 +539,65 @@ def makeExcel2(soldiers, siurim, hamal):
     return wb_name, list_of_doubled
 
 
+def returnScore(list_of_soldiers, list_of_doubled):
+    score = 0
+    list_sg = []
+    list_tapuz = []
+    for i in range(4, len(list_of_soldiers)):
+        if i % 2 == 0: list_sg.append(list_of_soldiers[i])
+        else: list_tapuz.append(list_of_soldiers[i])
+    list_sg = list_sg + list_tapuz
+    for i in range(len(list_sg)):
+        if list_sg.count(list_sg[i]) > 1:
+            if i + 3 < len(list_sg) and (list_sg[i] == list_sg[i+3]):
+                score -= 10
+            elif i + 4 < len(list_sg) and (list_sg[i] == list_sg[i+4]):
+                score -= 7
+            elif i + 5 < len(list_sg) and list_sg[i] == list_sg[i+5]:
+                score -= 5
+            elif i + 6 < len(list_sg) and list_sg[i] == list_sg[i+6]:
+                score -= 1
+            elif i + 9 < len(list_sg) and list_sg[i] == list_sg[i+9]:
+                score -= 10
+            elif i + 10 < len(list_sg) and list_sg[i] == list_sg[i+10]:
+                score -= 7
+            elif i + 11 < len(list_sg) and list_sg[i] == list_sg[i+11]:
+                score -= 5
+            elif i + 12 < len(list_sg) and list_sg[i] == list_sg[i+12]:
+                score -= 1
+            else:
+                score += 1
+    for i in list_of_soldiers[3]:
+        if i in list_sg:
+            score -= 3
+    return score
+
+
+def checkPerfect(dictToIter, siurimNum, SiurimNumEdit):
+    list_to_check = []
+    makePerfect = False
+    for i in dictToIter:
+        num = len(list_to_check)
+        if num < 6 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsPtorShmirah"] == False:
+            list_to_check.append(i)
+        elif 12 > num >= 6 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsPtorShmirah"] == False:
+            list_to_check.append(i)
+        elif 12 <= num < 13 and dictToIter[i]["RestingHours"] <= 0 and exampleSiur(dictToIter, siurimNum, SiurimNumEdit,
+                                                                                   list_to_check) != []:
+            list_to_check.append(exampleSiur(dictToIter, siurimNum, SiurimNumEdit, list_to_check))
+        elif 13 <= num < 15 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsPtorMitbach"] == False and \
+                dictToIter[i]["MitbahCooldown"] <= 0 and i not in list_to_check[12]:
+            list_to_check.append(i)
+        elif 15 <= num <= 16 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsHamal"] == True and i not in \
+                list_to_check[12]:
+            list_to_check.append(i)
+        elif num >= 16 and dictToIter[i]["RestingHours"] <= 0:
+            list_to_check.append(i)
+    if len(list_to_check) >= 16:
+        makePerfect = True
+    return makePerfect
+
+
 def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev, inactive):
     dict1 = cp.deepcopy(dict)
     for i in inactive:
@@ -563,24 +622,14 @@ def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev, inactiv
     dictToIter = cp.deepcopy(dict1)
     if not makePerfect:
         try:
-            for i in dictToIter:
-                num = len(list_to_check)
-                if num < 6 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsPtorShmirah"] == False: list_to_check.append(i)
-                elif 12 > num >= 6 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsPtorShmirah"] == False: list_to_check.append(i)
-                elif 12 <= num < 13 and dictToIter[i]["RestingHours"] <= 0 and exampleSiur(dictToIter, siurimNum, SiurimNumEdit, list_to_check) != []: list_to_check.append(exampleSiur(dictToIter, siurimNum, SiurimNumEdit, list_to_check))
-                elif 13 <= num < 15 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsPtorMitbach"] == False and dictToIter[i]["MitbahCooldown"] <= 0 and i not in list_to_check[12]: list_to_check.append(i)
-                elif 15 <= num <= 16 and dictToIter[i]["RestingHours"] <= 0 and dictToIter[i]["IsHamal"] == True and i not in list_to_check[12]: list_to_check.append(i)
-                elif num >= 16 and dictToIter[i]["RestingHours"] <= 0: list_to_check.append(i)
-            if len(list_to_check) >= 16:
-                makePerfect = True
+            makePerfect = checkPerfect(dictToIter, siurimNum, SiurimNumEdit)
         except Exception as exc:
             print(exc)
     print("Len: {0}".format(len(list_to_check)))
-    dict2 = dict1
-    list_of_soldiers, doubled = computeList(dict1, siurimNum, SiurimNumEdit, sevev)
-    if attempts == 0:
-        print("Could not make perfect shavtzak withing the given attempts.")
-        return
+    list_of_soldiers, doubled = computeList(cp.deepcopy(dict1), siurimNum, SiurimNumEdit, sevev)
+    best_attempt = []
+    best_points = -999
+    best_dict = {}
     if makePerfect and doubled:
         print("Making perfect shavtzak.")
         while doubled != [] and attempts > 0:
@@ -588,10 +637,24 @@ def cycle2(dict, siurimNum, SiurimNumEdit, makePerfect, attempts, sevev, inactiv
             list_of_soldiers, doubled = computeList(dict2, siurimNum, SiurimNumEdit, sevev)
             print(attempts)
             attempts -= 1
+    elif not makePerfect:
+        while attempts > 0:
+            dict2 = cp.deepcopy(dict1)
+            list_of_soldiers, doubled = computeList(dict2, siurimNum, SiurimNumEdit, sevev)
+            temp_score = returnScore(list_of_soldiers, doubled)
+            if temp_score > best_points:
+                best_attempt = list_of_soldiers
+                best_points = temp_score
+                best_dict = cp.deepcopy(dict2)
+            attempts -= 1
+    print(best_attempt)
+    print(best_points)
     print("Made shavtzak.")
-    excel_file, x = makeExcel2(list_of_soldiers, siurimNum, SiurimNumEdit) # make the new excel shavtzak file
+    if best_attempt == []:
+        best_attempt = list_of_soldiers
+    excel_file, x = makeExcel2(best_attempt, siurimNum, SiurimNumEdit) # make the new excel shavtzak file
     os.startfile(excel_file + ".xls")
-    rewriteExcel(dict2)  # upload the information to the original excel file and update the information on it
+    rewriteExcel(best_dict)  # upload the information to the original excel file and update the information on it
 
 
 def computeList(dict, siurimNum, SiurimNumEdit, sevev):
@@ -622,9 +685,9 @@ def computeList(dict, siurimNum, SiurimNumEdit, sevev):
         list_of_soldiers.append(sg)
         tapuz, dict2 = doTapuz2(dict2)
         list_of_soldiers.append(tapuz)
-        for i in dict2:
-            if dict2[i]["RestingHours"] > 0:
-                dict2[i]["RestingHours"] -= 4
+        for j in dict2:
+            if dict2[j]["RestingHours"] > 0:
+                dict2[j]["RestingHours"] -= 4
     list_of_doubled = []
     all_people = []
     for i in list_of_soldiers:
@@ -645,5 +708,3 @@ def computeList(dict, siurimNum, SiurimNumEdit, sevev):
                 list_of_doubled.append(all_people[i])
 
     return list_of_soldiers, list_of_doubled
-
-
